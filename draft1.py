@@ -1,4 +1,8 @@
 from transformers import pipeline
+import sys
+
+# Load the simplifier model once at startup
+simplifier = pipeline("text2text-generation", model="Vamsi/T5_Paraphrase_Paws")
 
 # Simplification Wrapper - Draft 2
 # Author: [Your Name]
@@ -10,10 +14,8 @@ def simplify_legal_question(question):
     Simplifies a complicated legal question using Hugging Face's transformers library.
     """
     try:
-        # Load a summarization pipeline
-        summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-        response = summarizer(question, max_length=50, min_length=25, do_sample=False)
-        simplified_question = response[0]['summary_text']
+        response = simplifier(f"paraphrase: {question}", max_length=60, num_return_sequences=1)
+        simplified_question = response[0]['generated_text']
         return simplified_question
     except Exception as e:
         return f"An error occurred: {e}"
@@ -36,4 +38,5 @@ def main():
         print(simplified)
 
 if __name__ == "__main__":
+    print("Python executable in use:", sys.executable)
     main()
